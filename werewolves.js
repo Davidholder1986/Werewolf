@@ -34,6 +34,36 @@ function AllPeopleReady() {
     return true;
 }
 
+function AllPeopleAtStory1() {
+    for (id in people_logged_in) {
+        id = people_logged_in[id]
+        if (id.story1Read == false) {
+            return false;
+        }
+    }
+    return true;
+}
+
+function AllPeopleSleeping() {
+    for (id in people_logged_in) {
+        id = people_logged_in[id]
+        if (id.sleeping == false) {
+            return false;
+        }
+    }
+    return true;
+}
+
+function AllPeopleAwake() {
+    for (id in people_logged_in) {
+        id = people_logged_in[id]
+        if (id.sleeping) {
+            return false;
+        }
+    }
+    return true;
+}
+
 function kill_voted_out_player() {
     const max_votes = Math.max.apply(null, Object.values(votes));
     console.log('max votes: ' + max_votes)
@@ -66,7 +96,7 @@ io.on('connection', (socket) => {
     num_people_connected += 1;
 
     socket.on('name', (name) => {
-        people_logged_in[socket.id] = { 'name' : name, gameReady: false, gameStarted: false, index: 0, person: 'villager', status: 'alive'};
+        people_logged_in[socket.id] = { 'name' : name, gameReady: false, gameStarted: false, story1Read: false, sleeping: false, index: 0, person: 'villager', status: 'alive'};
         console.log(people_logged_in);
     });
 
@@ -74,6 +104,27 @@ io.on('connection', (socket) => {
         people_logged_in[socket.id].gameReady = true;
         if (AllPeopleReady()) {
             io.emit('gameStarting', (people_logged_in))
+        }
+    });
+
+    socket.on('personAtStory1', (name) => {
+        people_logged_in[socket.id].story1Read = true;
+        if (AllPeopleAtStory1()) {
+            io.emit('Story1AllRead', (people_logged_in))
+        }
+    });
+
+    socket.on('personSleeping', (name) => {
+        people_logged_in[socket.id].sleeping = true;
+        if (AllPeopleSleeping()) {
+            io.emit('wakeUpWerewolf', (people_logged_in))
+        }
+    });
+
+    socket.on('personAwake', (name) => {
+        people_logged_in[socket.id].sleeping = false;
+        if (AllPeopleAwake()) {
+            io.emit('allAwake', (people_logged_in))
         }
     });
 
@@ -107,8 +158,6 @@ io.on('connection', (socket) => {
 
         if (players_voted == num_people_connected) {
             kill_voted_out_player()
-            console.log('test')
-            console.log(people_logged_in)
             io.emit('playerVoteUpdate', (people_logged_in))
         }
 

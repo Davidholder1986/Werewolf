@@ -233,8 +233,7 @@
                     story2: "Night falls, the town is asleep and eveyone closes their eyes",
                     story3: "The Werewolf wakes up and chooses a new victim",
                     story4: "The Werewolves fall asleep again, after fulfilling their lycanthropic needs",
-                    story5: "The town wakes up",
-                    story6: "The townspeople vote who to lynch as the werewolf",
+                    story5: "The town wakes up. The townspeople vote who to lynch as the werewolf.Click an unknown player to vote",
                     // gamestate shows where we are in the game.
                     // states are:
                     // * name_to_be_input - at the name input screen
@@ -259,8 +258,26 @@
                             this.game_state = 'waiting_to_start';
                             this.updateFunction();
                         }
+                        if (this.actionButton == 'Click to Continue' && this.game_state == 'starting_game') {
+                            socket.emit('personAtStory1', this.name);
+                            console.log('story one read')
+                            this.actionButton = 'Waiting for Others';
+                            this.updateFunction();
+                        }
+                        if (this.actionButton == 'Click to Sleep' && this.game_state == 'start_round') {
+                            socket.emit('personSleeping', this.name);
+                            console.log('person sleeping')
+                            this.actionButton = 'Waiting for Others';
+                            this.updateFunction();
+                        }
+                        if (this.actionButton == 'Wake Up' && this.game_state == 'all_wake') {
+                            socket.emit('personAwake', this.name);
+                            console.log('person waking up')
+                            this.actionButton = 'Waiting for Others';
+                            this.updateFunction();
+                        }
                     },
-                    updatePlayerNames: function() {
+                    updatePlayerInfo: function() {
                         count = 0
                         for (id in this.player_data) {
                             id = this.player_data[id]
@@ -288,38 +305,15 @@
                         }
                         if (this.myImage != '/style/images/question.jpg' && this.game_state == 'waiting_to_start') {
                             this.game_state = 'starting_game';
+                            console.log('story one being read')
+                            this.narrativeBox = this.story1;
+                            this.actionButton = 'Click to Continue';
                         }
                     },
                     updateFunction: function() {
-                      this.updatePlayerNames();
+                      this.updatePlayerInfo();
                       this.$forceUpdate();
                     },
-                    updateGameState: function() {
-                        if (this.game_state == 'voting') {
-                            this.narrativeBox = this.story6;
-                        }
-                        if (this.game_state == 'all_wake') {
-                            this.narrativeBox = this.story4;
-                            this.game_state = 'voting'
-                        }
-                        if (this.game_state == 'all_wake') {
-                            this.narrativeBox = this.story4;
-                            this.game_state = 'voting'
-                        }
-                        if (this.game_state == 'all_sleep') {
-                            this.narrativeBox = this.story3;
-                            this.game_state = 'werewolf_awake';
-                        }
-                        if (this.game_state == 'start_round'){
-                            this.game_state = 'all_sleep';
-                            this.narrativeBox = this.story2;
-                        }
-                        if (this.game_state == 'starting_game'){
-                            this.game_state = 'start_round';
-                            this.narrativeBox = this.story1;
-                        }
-
-                        console.log(this.game_state)
 
                     },
                     killPlayerIndex: function(player) {
@@ -375,23 +369,17 @@
                         }
                     },
                     killPlayer: function(event) {
-                        if (this.myPerson == 'werewolf') {
-                            console.log(event.currentTarget.id);
+                        if (this.myPerson == 'werewolf' && this.game_state == 'werewolf_awake') {
                             var player_index = this.killPlayerIndex(event.currentTarget.id);
-                            console.log(player_index);
-                            socket.emit('playerKilled', this.playerNames[player_index]);
-                            console.log(this.playerNames[player_index])
                             this.game_state = 'player_killed';
+                            socket.emit('playerKilled', this.playerNames[player_index]);
                         }
                     },
                     votePlayer: function(event) {
-                        console.log('Voted');
                         if (this.game_state == 'voting' && this.voted == false) {
-                            console.log('Voted1');
+                            console.log('Voted');
                             this.voted = true;
-                            console.log(event.currentTarget.id);
                             var player_index = this.votePlayerIndex(event.currentTarget.id);
-                            console.log(player_index);
                             socket.emit('playerVoted', this.playerNames[player_index]);
                             console.log(this.playerNames[player_index])
                         }
@@ -406,10 +394,30 @@
                         this.updateFunction();
                     });
 
+                    socket.on('Story1AllRead', (players) => {
+                        this.player_data = players;
+                        this.narrativeBox = this.story2;
+                        this.game_state = 'start_round';
+                        this.actionButton = 'Click to Sleep';
+                        this.updateFunction();
+                    });
+
+                    socket.on('wakeUpWerewolf', (players) => {
+                        this.narrativeBox = this.story3;
+                        if (this.person == 'werewolf') {
+                            this.narrativeBox = 'Werewolf, select your victim!';
+                        }
+                        this.game_state = 'werewolf_awake';
+                        this.actionButton = 'Waiting for Werewolf Kill';
+                        this.updateFunction();
+                    });
+
                     socket.on('playerDeathUpdate', (players) => {
                         this.player_data = players;
                         this.updateFunction();
                         this.game_state = 'all_wake';
+                        this.narrativeBox = this.story4;
+                        this.actionButton = 'Wake Up';
                     });
 
                     socket.on('playerVoteUpdate', (players) => {
@@ -424,13 +432,20 @@
 
                     });
 
+                    socket.on('allAwake', (players) => {
+                        this.narrativeBox = this.story5;
+                        this.game_state = 'voting'
+                        this.actionButton = 'Voting';
+                        this.player_data = players;
+                        this.updateFunction();
+                    });
+
                     socket.on('gameOver', (players) => {
                         this.player_data = players;
                         this.narrativeBox = "Game over, the werewolf is dead";
                         this.game_state = 'Game_Over'
                     });
 
-                    setInterval(this.updateGameState, 4000);
                 }
             })
 
