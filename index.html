@@ -296,7 +296,7 @@
                     },
                     updateGameState: function() {
                         if (this.game_state == 'voting') {
-
+                            this.narrativeBox = this.story6;
                         }
                         if (this.game_state == 'all_wake') {
                             this.narrativeBox = this.story4;
@@ -385,8 +385,10 @@
                         }
                     },
                     votePlayer: function(event) {
-                        if (this.status == 'alive' && this.voted == false) {
-                            this.voted = True;
+                        console.log('Voted');
+                        if (this.game_state == 'voting' && this.voted == false) {
+                            console.log('Voted1');
+                            this.voted = true;
                             console.log(event.currentTarget.id);
                             var player_index = this.votePlayerIndex(event.currentTarget.id);
                             console.log(player_index);
@@ -410,7 +412,7 @@
                         this.game_state = 'all_wake';
                     });
 
-                    socket.on('playeVoteUpdate', (players) => {
+                    socket.on('playerVoteUpdate', (players) => {
                         this.player_data = players;
                         this.updateFunction();
                         if (this.myPerson == 'werewolf' && this.status == 'dead') {
@@ -422,7 +424,13 @@
 
                     });
 
-                    setInterval(this.updateGameState, 1000);
+                    socket.on('gameOver', (players) => {
+                        this.player_data = players;
+                        this.narrativeBox = "Game over, the werewolf is dead";
+                        this.game_state = 'Game_Over'
+                    });
+
+                    setInterval(this.updateGameState, 4000);
                 }
             })
 
