@@ -315,7 +315,6 @@
                       this.$forceUpdate();
                     },
 
-                    },
                     killPlayerIndex: function(player) {
                         if (player == 'kill-player1') {
                             return 0;
@@ -376,10 +375,13 @@
                         }
                     },
                     votePlayer: function(event) {
+                        console.log('Voted');
                         if (this.game_state == 'voting' && this.voted == false) {
-                            console.log('Voted');
+                            console.log('Voted1');
                             this.voted = true;
+                            console.log(event.currentTarget.id);
                             var player_index = this.votePlayerIndex(event.currentTarget.id);
+                            console.log(player_index);
                             socket.emit('playerVoted', this.playerNames[player_index]);
                             console.log(this.playerNames[player_index])
                         }
@@ -438,6 +440,7 @@
                         this.actionButton = 'Voting';
                         this.player_data = players;
                         this.updateFunction();
+
                     });
 
                     socket.on('gameOver', (players) => {
