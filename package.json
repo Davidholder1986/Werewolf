@@ -4,7 +4,7 @@
   "description": "A game of Werewolves for the fam",
   "main": "werewolves.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
     "start": "node werewolves.js"
   },
   "author": "David Holder",
