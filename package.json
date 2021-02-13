@@ -1,0 +1,15 @@
+{
+  "name": "werewolf-3.0.1",
+  "version": "1.0.0",
+  "description": "A game of Werewolves for the fam",
+  "main": "werewolves.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "David Holder",
+  "license": "ISC",
+  "dependencies": {
+    "express": "^4.17.1",
+    "socket.io": "^3.1.1"
+  }
+}

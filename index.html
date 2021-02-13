@@ -1,0 +1,433 @@
+<!doctype html>
+<html>
+    <head>
+        <title>Werewolves 3.0.1</title>
+        <meta name="description" content="Family Game">
+        <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+        <link rel="stylesheet" type="text/css" href="/style/style.css" />
+    </head>
+    <body>
+
+        <header class="background">
+            <div class='title'>
+                <h1>Werewolves</h1>
+            </div>
+
+            <div id='app'>
+
+            <!-- Intro Screen -->
+
+                <div class="container" v-show="isNameButtonClicked">
+                  <div class="row">
+                    <div class="col-md-10 col-lg-8 col-xl-7 mx-auto">
+                      <form @submit.prevent='sendName'>
+                        <div class="form-row">
+                          <div class="col-12 col-md-9 mb-2 mb-md-0">
+                            <input id='input-name' type="text" class="form-control form-control-lg" placeholder='Name...' v-model:value='name' />
+                          </div>
+                          <div class="col-12 col-md-3">
+                            <button id="submit-name" type="submit" value='Send' class="btn btn-block btn-lg btn-primary">Sign up!</button>
+                          </div>
+                        </div>
+                      </form>
+                    </div>
+                  </div>
+             </div>
+
+             <!-- Game Screen -->
+
+                <div class="container" v-show="!isNameButtonClicked">
+
+                <div class='narrative-screen'>
+                    <p>{{ narrativeBox }}</p>
+                </div>
+
+                <button id="action" @click="actionButtonClick($event)" class="btn btn-block btn-lg btn-primary">{{ actionButton }}</button>
+
+                  <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 g-3">
+
+                      <div class="col" id='myself'>
+                        <div class="card shadow-sm">
+                          <img class='others_thumbnail-image' :src="myImage" alt="Picture not working">
+
+                          <div class="card-body">
+                            <p class="card-text">{{ name }}</p>
+                            <div class="d-flex justify-content-between align-items-center">
+
+                              <small class="text-muted">{{ myStatus }}</small>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+
+                    <div class="col" id='player1'>
+                      <div class="card shadow-sm">
+                        <img class='others_thumbnail-image' :src="playerImages[0]" alt="Picture not working">
+
+                        <div class="card-body">
+                          <p class="card-text">{{ playerNames[0] }}</p>
+                          <div class="d-flex justify-content-between align-items-center">
+                            <div class="btn-group">
+                              <button id='kill-player1' type="button" v-on:click="killPlayer($event)" class="btn btn-sm btn-outline-secondary">Kill</button>
+                              <button id='vote-player1' v-on:click="votePlayer($event)" type="button" class="btn btn-sm btn-outline-secondary">Vote</button>
+                            </div>
+                            <small class="text-muted">{{ playerStatuses[0] }}</small>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div class="col" id='player2'>
+                      <div class="card shadow-sm">
+                        <img class='others_thumbnail-image' :src="playerImages[1]" alt="Picture not working">
+
+                        <div class="card-body">
+                          <p class="card-text">{{ playerNames[1] }}</p>
+                          <div class="d-flex justify-content-between align-items-center">
+                            <div class="btn-group">
+                              <button id='kill-player2' type="button" v-on:click="killPlayer($event)" class="btn btn-sm btn-outline-secondary">Kill</button>
+                              <button id='vote-player2' v-on:click="votePlayer($event)" type="button" class="btn btn-sm btn-outline-secondary">Vote</button>
+                            </div>
+                            <small class="text-muted">{{ playerStatuses[1] }}</small>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div class="col" id='player3'>
+                      <div class="card shadow-sm">
+                        <img class='others_thumbnail-image' :src="playerImages[2]" alt="Picture not working">
+
+                        <div class="card-body">
+                          <p class="card-text">{{ playerNames[2] }}</p>
+                          <div class="d-flex justify-content-between align-items-center">
+                            <div class="btn-group">
+                              <button id='kill-player3' type="button" v-on:click="killPlayer($event)" class="btn btn-sm btn-outline-secondary">Kill</button>
+                              <button id='vote-player3' v-on:click="votePlayer($event)" type="button" class="btn btn-sm btn-outline-secondary">Vote</button>
+                            </div>
+                            <small class="text-muted">{{ playerStatuses[2] }}</small>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div class="col" id='player4'>
+                      <div class="card shadow-sm">
+                        <img class='others_thumbnail-image' :src="playerImages[3]" alt="Picture not working">
+
+                        <div class="card-body">
+                          <p class="card-text">{{ playerNames[3] }}</p>
+                          <div class="d-flex justify-content-between align-items-center">
+                            <div class="btn-group">
+                              <button id='kill-player4' type="button" v-on:click="killPlayer($event)" class="btn btn-sm btn-outline-secondary">Kill</button>
+                              <button id='vote-player4' v-on:click="votePlayer($event)" type="button" class="btn btn-sm btn-outline-secondary">Vote</button>
+                            </div>
+                            <small class="text-muted">{{ playerStatuses[3] }}</small>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div class="col" id='player5'>
+                      <div class="card shadow-sm">
+                        <img class='others_thumbnail-image' :src="playerImages[4]" alt="Picture not working">
+
+                        <div class="card-body">
+                          <p class="card-text">{{ playerNames[4] }}</p>
+                          <div class="d-flex justify-content-between align-items-center">
+                            <div class="btn-group">
+                              <button id='kill-player5' type="button" v-on:click="killPlayer($event)" class="btn btn-sm btn-outline-secondary">Kill</button>
+                              <button id='vote-player5' v-on:click="votePlayer($event)" type="button" class="btn btn-sm btn-outline-secondary">Vote</button>
+                            </div>
+                            <small class="text-muted">{{ playerStatuses[4] }}</small>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div class="col" id='player6'>
+                      <div class="card shadow-sm">
+                        <img class='others_thumbnail-image' :src="playerImages[5]" alt="Picture not working">
+
+                        <div class="card-body">
+                          <p class="card-text">{{ playerNames[5] }}</p>
+                          <div class="d-flex justify-content-between align-items-center">
+                            <div class="btn-group">
+                              <button id='kill-player6' type="button" v-on:click="killPlayer($event)" class="btn btn-sm btn-outline-secondary">Kill</button>
+                              <button id='vote-player6' v-on:click="votePlayer($event)" type="button" class="btn btn-sm btn-outline-secondary">Vote</button>
+                            </div>
+                            <small class="text-muted">{{ playerStatuses[5] }}</small>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div class="col" id='player7'>
+                      <div class="card shadow-sm">
+                        <img class='others_thumbnail-image' :src="playerImages[6]" alt="Picture not working">
+
+                        <div class="card-body">
+                          <p class="card-text">{{ playerNames[6] }}</p>
+                          <div class="d-flex justify-content-between align-items-center">
+                            <div class="btn-group">
+                              <button id='kill-player7' type="button" v-on:click="killPlayer($event)" class="btn btn-sm btn-outline-secondary">Kill</button>
+                              <button id='vote-player7' v-on:click="votePlayer($event)" type="button" class="btn btn-sm btn-outline-secondary">Vote</button>
+                            </div>
+                            <small class="text-muted">{{ playerStatuses[6] }}</small>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div class="col" id='player8'>
+                      <div class="card shadow-sm">
+                        <img class='others_thumbnail-image' :src="playerImages[7]" alt="Picture not working">
+
+                        <div class="card-body">
+                          <p class="card-text">{{ playerNames[7] }}</p>
+                          <div class="d-flex justify-content-between align-items-center">
+                            <div class="btn-group">
+                              <button id='kill-player8' type="button" v-on:click="killPlayer($event)" class="btn btn-sm btn-outline-secondary">Kill</button>
+                              <button id='vote-player8' v-on:click="votePlayer($event)" type="button" class="btn btn-sm btn-outline-secondary">Vote</button>
+                            </div>
+                            <small class="text-muted">{{ playerStatuses[7] }}</small>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+
+
+
+
+
+                  </div>
+                </div>
+
+          </div>
+        </header>
+        <script src="https://cdn.jsdelivr.net/npm/vue@2/dist/vue.js"></script>
+        <script src="/socket.io/socket.io.js"></script>
+        <script>
+            var socket = null;
+            var app = new Vue({
+                el: '#app',
+                data: {
+                    isNameButtonClicked: true,
+                    name: '',
+                    myId: '',
+                    myStatus: '',
+                    myVote: '',
+                    voted: false,
+                    playerNames: ['Unknown Player', 'Unknown Player', 'Unknown Player', 'Unknown Player', 'Unknown Player', 'Unknown Player', 'Unknown Player', 'Unknown Player'],
+                    playerStatuses: ['Unknown', 'Unknown', 'Unknown', 'Unknown', 'Unknown', 'Unknown', 'Unknown', 'Unknown'],
+                    myPerson: '',
+                    imagesQuestionMark: '/style/images/question.jpg',
+                    imagesWerewolf : '/style/images/Werewolf.jpg',
+                    ImagesVillager : '/style/images/Villager.jpg',
+                    myImage: '/style/images/question.jpg',
+                    playerImages: ['/style/images/question.jpg', '/style/images/question.jpg', '/style/images/question.jpg', '/style/images/question.jpg', '/style/images/question.jpg', '/style/images/question.jpg', '/style/images/question.jpg', '/style/images/question.jpg'],
+                    actionButton: 'Start the Game',
+                    narrativeBox: 'Game waiting to start',
+                    story1: "Deep in the American countryside, the little town of Millers Hollow has recently been infiltrated by Werewolves. Each night, murders are committed by the Townsfolk, who due to some mysterious phenomenon (possibly the greenhouse effect) have become Werewolves. It is now time to take control and eliminate this ancient evil, before the town loses its last few inhabitants.",
+                    story2: "Night falls, the town is asleep and eveyone closes their eyes",
+                    story3: "The Werewolf wakes up and chooses a new victim",
+                    story4: "The Werewolves fall asleep again, after fulfilling their lycanthropic needs",
+                    story5: "The town wakes up",
+                    story6: "The townspeople vote who to lynch as the werewolf",
+                    // gamestate shows where we are in the game.
+                    // states are:
+                    // * name_to_be_input - at the name input screen
+                    // * waiting_to_start - inputed name into screen - others yet to confirm ready to start
+                    // * start_round - all players are in the game and characters have been selected for and game is starting
+                    // * all_sleep - the players go to sleep
+                    // * werewolf_awake - the werewolf wakes up
+                    game_state: 'name_to_be_input',
+                    player_data: {}
+                },
+                methods: {
+                    sendName: function () {
+                        socket.emit('name', this.name);
+                        this.isNameButtonClicked = false;
+                    },
+                    actionButtonClick: function(event) {
+                        if (this.actionButton == 'Start the Game') {
+                            socket.emit('personReady', this.name);
+                            console.log('ready')
+                            this.actionButton = 'Ready';
+                            this.narrativeBox = 'Game waiting for all others to start';
+                            this.game_state = 'waiting_to_start';
+                            this.updateFunction();
+                        }
+                    },
+                    updatePlayerNames: function() {
+                        count = 0
+                        for (id in this.player_data) {
+                            id = this.player_data[id]
+                            if (id.name != this.name) {
+                                this.playerNames[count] = id.name;
+                                this.playerStatuses[count] = id.status
+                                count += 1;
+                                if (id.status == 'dead' && id.person != 'werewolf') {
+                                    this.playerImages[count - 1] = '/style/images/Villager.jpg';
+                                }
+                                if (id.status == 'dead' && id.person == 'werewolf') {
+                                    this.playerImages[count - 1] = '/style/images/Werewolf.jpg';
+                                }
+                            } else {
+                                this.myId = id;
+                                this.myPerson = id.person;
+                                this.myStatus = id.status;
+                                if (this.myPerson == 'werewolf') {
+                                    this.myImage = '/style/images/Werewolf.jpg'
+                                }
+                                if (this.myPerson == 'villager') {
+                                    this.myImage = '/style/images/Villager.jpg'
+                                }
+                            }
+                        }
+                        if (this.myImage != '/style/images/question.jpg' && this.game_state == 'waiting_to_start') {
+                            this.game_state = 'starting_game';
+                        }
+                    },
+                    updateFunction: function() {
+                      this.updatePlayerNames();
+                      this.$forceUpdate();
+                    },
+                    updateGameState: function() {
+                        if (this.game_state == 'voting') {
+
+                        }
+                        if (this.game_state == 'all_wake') {
+                            this.narrativeBox = this.story4;
+                            this.game_state = 'voting'
+                        }
+                        if (this.game_state == 'all_wake') {
+                            this.narrativeBox = this.story4;
+                            this.game_state = 'voting'
+                        }
+                        if (this.game_state == 'all_sleep') {
+                            this.narrativeBox = this.story3;
+                            this.game_state = 'werewolf_awake';
+                        }
+                        if (this.game_state == 'start_round'){
+                            this.game_state = 'all_sleep';
+                            this.narrativeBox = this.story2;
+                        }
+                        if (this.game_state == 'starting_game'){
+                            this.game_state = 'start_round';
+                            this.narrativeBox = this.story1;
+                        }
+
+                        console.log(this.game_state)
+
+                    },
+                    killPlayerIndex: function(player) {
+                        if (player == 'kill-player1') {
+                            return 0;
+                        }
+                        if (player == 'kill-player2') {
+                            return 1;
+                        }
+                        if (player == 'kill-player3') {
+                            return 2;
+                        }
+                        if (player == 'kill-player4') {
+                            return 3;
+                        }
+                        if (player == 'kill-player5') {
+                            return 4;
+                        }
+                        if (player == 'kill-player6') {
+                            return 5;
+                        }
+                        if (player == 'kill-player7') {
+                            return 6;
+                        }
+                        if (player == 'kill-player8') {
+                            return 7;
+                        }
+                    },
+                    votePlayerIndex: function(player) {
+                        if (player == 'vote-player1') {
+                            return 0;
+                        }
+                        if (player == 'vote-player2') {
+                            return 1;
+                        }
+                        if (player == 'vote-player3') {
+                            return 2;
+                        }
+                        if (player == 'vote-player4') {
+                            return 3;
+                        }
+                        if (player == 'vote-player5') {
+                            return 4;
+                        }
+                        if (player == 'vote-player6') {
+                            return 5;
+                        }
+                        if (player == 'vote-player7') {
+                            return 6;
+                        }
+                        if (player == 'vote-player8') {
+                            return 7;
+                        }
+                    },
+                    killPlayer: function(event) {
+                        if (this.myPerson == 'werewolf') {
+                            console.log(event.currentTarget.id);
+                            var player_index = this.killPlayerIndex(event.currentTarget.id);
+                            console.log(player_index);
+                            socket.emit('playerKilled', this.playerNames[player_index]);
+                            console.log(this.playerNames[player_index])
+                            this.game_state = 'player_killed';
+                        }
+                    }
+                    votePlayer: function(event) {
+                        if (this.status == 'alive' && this.voted == false) {
+                            this.voted = True;
+                            console.log(event.currentTarget.id);
+                            var player_index = this.votePlayerIndex(event.currentTarget.id);
+                            console.log(player_index);
+                            socket.emit('playerVoted', this.playerNames[player_index]);
+                            console.log(this.playerNames[player_index])
+                        }
+                    }
+
+                },
+                created: function () {
+                    socket = io();
+
+                    socket.on('gameStarting', (players) => {
+                        this.player_data = players;
+                        this.updateFunction();
+                    });
+
+                    socket.on('playerDeathUpdate', (players) => {
+                        this.player_data = players;
+                        this.updateFunction();
+                        this.game_state = 'all_wake';
+                    });
+
+                    socket.on('playeVoteUpdate', (players) => {
+                        this.player_data = players;
+                        this.updateFunction();
+                        if (this.myPerson == 'werewolf' && this.status == 'dead') {
+                            this.narrativeBox = "Game over, the werewolf is dead";
+                            this.game_state = 'Game_Over'
+                        } else {
+                            this.game_state = 'start_round';
+                        }
+
+                    });
+
+                    setInterval(this.updateGameState, 1000);
+                }
+            })
+
+
+        </script>
+
+    </body>
+</html>
