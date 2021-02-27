@@ -108,10 +108,19 @@ io.on('connection', (socket) => {
     });
 
     socket.on('personAtStory1', (name) => {
+        players_voted = 0
+        votes = {}
         people_logged_in[socket.id].story1Read = true;
         if (AllPeopleAtStory1()) {
             io.emit('Story1AllRead', (people_logged_in))
         }
+    });
+
+    socket.on('beginAgain', (name) => {
+        players_voted = 0
+        votes = {}
+        io.emit('Story1AllRead', (people_logged_in))
+        
     });
 
     socket.on('personSleeping', (name) => {
@@ -151,17 +160,29 @@ io.on('connection', (socket) => {
             votes[name] = 1;
         }
 
+        io.emit('playerVoteNumbers', votes)
+
         players_voted += 1
 
         console.log('players voted: ' + players_voted)
         console.log(players_voted == num_people_connected)
 
-        if (players_voted == num_people_connected) {
+        if (players_voted >= num_people_connected) {
+            console.log('votes complete')
             kill_voted_out_player()
+            votes = {}
             io.emit('playerVoteUpdate', (people_logged_in))
         }
 
 
+    });
+
+    socket.on('gameOverWerewolfDead', (name) => {
+        io.emit('WerewolfDead', (name))
+    });
+
+    socket.on('gameOverWerewolfAlive', (name) => {
+        io.emit('WerewolfAliveWin', (name))
     });
 
     socket.on('disconnect', () => {

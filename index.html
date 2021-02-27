@@ -233,7 +233,7 @@
                     story2: "Night falls, the town is asleep and eveyone closes their eyes",
                     story3: "The Werewolf wakes up and chooses a new victim",
                     story4: "The Werewolves fall asleep again, after fulfilling their lycanthropic needs",
-                    story5: "The town wakes up. The townspeople vote who to lynch as the werewolf.Click an unknown player to vote",
+                    story5: "The town wakes up. The townspeople vote who to lynch as the werewolf. Click an unknown player to vote",
                     // gamestate shows where we are in the game.
                     // states are:
                     // * name_to_be_input - at the name input screen
@@ -377,6 +377,7 @@
                     votePlayer: function(event) {
                         console.log('Voted');
                         if (this.game_state == 'voting' && this.voted == false) {
+                            this.actionButton = 'you have voted';
                             console.log('Voted1');
                             this.voted = true;
                             console.log(event.currentTarget.id);
@@ -385,6 +386,20 @@
                             socket.emit('playerVoted', this.playerNames[player_index]);
                             console.log(this.playerNames[player_index])
                         }
+                    },
+                    alivePlayers: function() {
+                        count = 0
+                        for (id in this.player_data) {
+                            id = this.player_data[id]
+                            if (id.status == 'alive') {
+                                count += 1;
+                            }
+                        }
+                        if (count == 1) {
+                            socket.emit('gameOverWerewolfAlive', this.name);
+                        }
+
+                        console.log(count)
                     }
 
                 },
@@ -420,16 +435,21 @@
                         this.game_state = 'all_wake';
                         this.narrativeBox = this.story4;
                         this.actionButton = 'Wake Up';
+                        this.alivePlayers();
                     });
 
                     socket.on('playerVoteUpdate', (players) => {
+                        console.log('voting endgame')
                         this.player_data = players;
                         this.updateFunction();
-                        if (this.myPerson == 'werewolf' && this.status == 'dead') {
-                            this.narrativeBox = "Game over, the werewolf is dead";
-                            this.game_state = 'Game_Over'
+                        console.log(this.myPerson)
+                        console.log(this.myStatus)
+                        if (this.myPerson == 'werewolf' && this.myStatus == 'dead') {
+                            console.log('werewolf dead')
+                            socket.emit('gameOverWerewolfDead', this.name);
                         } else {
-                            this.game_state = 'start_round';
+                            console.log('begin again')
+                            socket.emit('beginAgain', this.name);
                         }
 
                     });
@@ -443,9 +463,19 @@
 
                     });
 
-                    socket.on('gameOver', (players) => {
-                        this.player_data = players;
+                    socket.on('playerVoteNumbers', (votes) => {
+                        this.narrativeBox = votes;
+                        this.updateFunction();
+
+                    });
+
+                    socket.on('WerewolfDead', (name) => {
                         this.narrativeBox = "Game over, the werewolf is dead";
+                        this.game_state = 'Game_Over'
+                    });
+
+                    socket.on('WerewolfAliveWin', (name) => {
+                        this.narrativeBox = "Game over, the werewolf has killed all the town, the werewolf wins!";
                         this.game_state = 'Game_Over'
                     });
 
